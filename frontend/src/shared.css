@@ -17,3 +17,339 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Violet gradient background - fixed for scrolling */
+html {
+  background: linear-gradient(135deg, rgb(76 29 149), rgb(88 28 135), rgb(67 56 202)) !important;
+  background-attachment: fixed !important;
+  min-height: 100vh;
+}
+
+body {
+  background: transparent;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  background: transparent;
+}
+
+/* Separators and dividers - hidden */
+.cpd-separator,
+hr,
+[role="separator"],
+.separator {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+/* Borders and outlines */
+.cpd-card,
+.card,
+[data-outlined="true"],
+.outlined {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Text input fields styling */
+.cpd-text-field-root input,
+.cpd-text-area-root textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 0.5rem !important;
+}
+
+.cpd-text-field-root input::placeholder,
+.cpd-text-area-root textarea::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: rgba(196, 181, 253, 0.6) !important;
+}
+
+.cpd-text-field-root input:focus,
+.cpd-text-area-root textarea:focus,
+input:focus,
+textarea:focus {
+  border-color: rgb(139, 92, 246) !important;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3) !important;
+  outline: none !important;
+}
+
+/* Form labels */
+.cpd-form-field-label,
+label {
+  color: white !important;
+}
+
+/* Override CSS custom properties for navigation */
+:root {
+  --cpd-color-gray-400: rgba(255, 255, 255, 0.3) !important;
+  --cpd-color-text-secondary: rgba(255, 255, 255, 0.8) !important;
+  --cpd-color-text-primary: white !important;
+  --cpd-color-bg-action-primary-rest: rgb(139, 92, 246) !important;
+  --cpd-color-bg-subtle-secondary: rgba(255, 255, 255, 0.1) !important;
+  --cpd-color-bg-subtle-primary: rgba(255, 255, 255, 0.2) !important;
+  --cpd-color-border-focused: rgb(139, 92, 246) !important;
+}
+
+/* Icon styling */
+svg,
+[class*="icon"],
+.cpd-icon {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Navigation icons specifically */
+[class*="nav-item"] svg,
+[class*="nav-item"] [class*="icon"] {
+  color: rgba(255, 255, 255, 0.8) !important;
+  fill: rgba(255, 255, 255, 0.8) !important;
+}
+
+[class*="nav-item"]:hover svg,
+[class*="nav-item"]:hover [class*="icon"],
+[class*="nav-item"][aria-current="page"] svg,
+[class*="nav-item"][aria-current="page"] [class*="icon"] {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Navigation styling with more specific selectors */
+[class*="nav-bar"] {
+  border-bottom-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+[class*="nav-tab"]::before {
+  background-color: rgb(139, 92, 246) !important;
+}
+
+[class*="nav-item"] {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[class*="nav-item"]:hover,
+[class*="nav-item"][aria-current="page"] {
+  color: white !important;
+}
+
+[class*="nav-item"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[class*="nav-item"]:active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Button styling - comprehensive override */
+button,
+.cpd-button,
+[class*="button"],
+input[type="button"],
+input[type="submit"] {
+  color: white !important;
+}
+
+/* Primary buttons - glassmorphic with white tint */
+button[data-kind="primary"],
+.cpd-button[data-kind="primary"],
+[class*="button"][data-kind="primary"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+button[data-kind="primary"]:hover,
+.cpd-button[data-kind="primary"]:hover,
+[class*="button"][data-kind="primary"]:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Secondary buttons - glassmorphic with red tint */
+button[data-kind="secondary"],
+.cpd-button[data-kind="secondary"],
+[class*="button"][data-kind="secondary"] {
+  background: rgba(248, 113, 113, 0.15) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(248, 113, 113, 0.3) !important;
+  color: white !important;
+}
+
+button[data-kind="secondary"]:hover,
+.cpd-button[data-kind="secondary"]:hover,
+[class*="button"][data-kind="secondary"]:hover {
+  background: rgba(248, 113, 113, 0.25) !important;
+  border: 1px solid rgba(248, 113, 113, 0.4) !important;
+}
+
+/* Tertiary buttons */
+button[data-kind="tertiary"],
+.cpd-button[data-kind="tertiary"],
+[class*="button"][data-kind="tertiary"] {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+button[data-kind="tertiary"]:hover,
+.cpd-button[data-kind="tertiary"]:hover,
+[class*="button"][data-kind="tertiary"]:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Default buttons (no data-kind) */
+button:not([data-kind]),
+.cpd-button:not([data-kind]),
+[class*="button"]:not([data-kind]) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+button:not([data-kind]):hover,
+.cpd-button:not([data-kind]):hover,
+[class*="button"]:not([data-kind]):hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Modal/Dialog styling */
+[role="dialog"],
+.cpd-dialog,
+[class*="dialog"],
+.modal,
+[class*="modal"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 1rem !important;
+  color: white !important;
+}
+
+/* Remove glassmorphic effects from nested elements inside modals */
+[role="dialog"] *,
+.cpd-dialog *,
+[class*="dialog"] * {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+}
+
+/* Restore only necessary borders for form elements inside modals */
+[role="dialog"] input,
+[role="dialog"] textarea,
+.cpd-dialog input,
+.cpd-dialog textarea {
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Modal overlay/backdrop */
+[data-state="open"][role="dialog"]::backdrop,
+.cpd-dialog-overlay,
+[class*="overlay"],
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+/* Modal content */
+[role="dialog"] h1,
+[role="dialog"] h2,
+[role="dialog"] h3,
+[role="dialog"] p,
+.cpd-dialog h1,
+.cpd-dialog h2,
+.cpd-dialog h3,
+.cpd-dialog p {
+  color: white !important;
+}
+
+/* Lighter, transparent backgrounds for status icons - exclude visual list items */
+[class*="icon"][class*="success"]:not([class*="visual-list"]) {
+  background: rgba(34, 197, 94, 0.2) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+[class*="icon"][class*="error"]:not([class*="visual-list"]),
+[class*="icon"][class*="failure"]:not([class*="visual-list"]),
+[class*="icon"][class*="invalid"]:not([class*="visual-list"]) {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+[class*="icon"][class*="warning"]:not([class*="visual-list"]) {
+  background: rgba(245, 158, 11, 0.2) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+[class*="icon"][class*="info"]:not([class*="visual-list"]) {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Trigger styling - outline and tint always visible */
+[class*="trigger"]:not([class*="trigger"] [class*="trigger"]) {
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 1rem !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  text-decoration: none !important;
+  padding: 1.5rem 1.5rem !important;
+}
+
+[class*="trigger"]:hover:not([class*="trigger"] [class*="trigger"]) {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Remove outline from nested triggers */
+[class*="trigger"] [class*="trigger"] {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* User class styling - white tint background */
+[class*="user"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Session and filter classes - white tint backgrounds with rounded corners */
+[class*="session-card"],
+[class*="browser-sessions-overview"],
+[class*="filter"]:not([class*="disabled-filter"]) {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 0.75rem !important;
+  color: white !important;
+}
+
+/* Disabled filter - lighter background with rounded corners */
+[class*="disabled-filter"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 0.75rem !important;
+}
+
+/* Root class styling - for collapsible trigger containers */
+[class*="root"] {
+  color: white !important;
+}
+
+/* Link class styling - white color for proper visibility */
+[class*="link"] {
+  color: white !important;
+}
+
+[class*="link"]:hover {
+  color: rgba(255, 255, 255, 0.8) !important;
+  background: transparent !important;
+}
+
+/* Empty state styling - white color and transparent background */
+[class*="empty-state"] {
+  color: white !important;
+  background: transparent !important;
+}

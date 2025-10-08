@@ -8,12 +8,24 @@ Please see LICENSE files in the repository root for full details.
 
 {% extends "base.html" %}
 
+{% block title %}Page Not Found - AMS{% endblock title %}
+
 {% block content %}
-<main class="w-96 flex-1 flex flex-col gap-2 justify-center">
+  <style>
+    body { background: linear-gradient(135deg, rgb(76 29 149), rgb(88 28 135), rgb(67 56 202)) !important; min-height: 100vh; }
+    .layout-container { background: transparent !important; display: flex !important; align-items: center !important; justify-content: center !important; min-height: 100vh !important; padding: 1rem !important; }
+    main { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(10px) !important; border-radius: 1rem !important; padding: 2rem !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; width: 100% !important; max-width: 500px !important; }
+    h1, p { color: white !important; text-align: center !important; }
+    .cpd-button[data-kind="primary"], .cpd-button:not([data-kind]) { background: rgb(139, 92, 246) !important; border: 1px solid rgb(139, 92, 246) !important; color: white !important; }
+    .cpd-button[data-kind="primary"]:hover, .cpd-button:not([data-kind]):hover { background: rgb(124, 58, 237) !important; border: 1px solid rgb(124, 58, 237) !important; }
+    hr { border-color: rgba(255, 255, 255, 0.2) !important; }
+    code, pre { color: rgba(255, 255, 255, 0.7) !important; background: rgba(0, 0, 0, 0.2) !important; border-radius: 0.5rem !important; padding: 1rem !important; }
+  </style>
+<main class="w-96 flex flex-col gap-2">
   <h1 class="text-xl font-semibold">{{ _("mas.not_found.heading") }}</h1>
   <p>{{ _("mas.not_found.description") }}</p>
-  <div>
-    {{ button.link_text(text=_("mas.back_to_homepage"), href="/") }}
+  <div class="my-4 text-center">
+    {{ button.link_outline(text=_("mas.back_to_homepage"), href="/") }}
   </div>
 
   <hr />
