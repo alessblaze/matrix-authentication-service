@@ -12,3 +12,6 @@ target
 
 # OS garbage
 .DS_Store
+
+# Test configuration
+ams-test/

@@ -11,6 +11,23 @@ Please see LICENSE files in the repository root for full details.
 {% from "components/idp_brand.html" import logo %}
 
 {% block content %}
+  <style>
+    body { background: linear-gradient(135deg, rgb(76 29 149), rgb(88 28 135), rgb(67 56 202)) !important; min-height: 100vh; }
+    .layout-container { background: transparent !important; }
+    form { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(10px) !important; border-radius: 1rem !important; padding: 2rem !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; }
+    .cpd-text-control { background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: white !important; }
+    .cpd-text-control::placeholder { color: rgba(196, 181, 253, 0.6) !important; }
+    .cpd-text-control:focus { border-color: rgb(139, 92, 246) !important; box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3) !important; }
+    .cpd-button[data-kind="secondary"] { background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: white !important; }
+    .cpd-button[data-kind="secondary"]:hover { background: rgba(255, 255, 255, 0.2) !important; }
+    .cpd-text-secondary { color: white !important; }
+    .title, .text { color: white !important; }
+    .cpd-button[data-kind="primary"], .cpd-button:not([data-kind]) { background: rgb(139, 92, 246) !important; border: 1px solid rgb(139, 92, 246) !important; color: white !important; }
+    .cpd-button[data-kind="primary"]:hover, .cpd-button:not([data-kind]):hover { background: rgb(124, 58, 237) !important; border: 1px solid rgb(124, 58, 237) !important; }
+    .text-critical { background: rgba(239, 68, 68, 0.2) !important; border: 1px solid rgba(239, 68, 68, 0.4) !important; color: rgb(254, 202, 202) !important; padding: 0.75rem !important; border-radius: 0.5rem !important; margin-bottom: 1rem !important; text-align: center !important; }
+    .icon { background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 0.75rem !important; padding: 1rem !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+    .icon svg { color: white !important; width: 2rem !important; height: 2rem !important; }
+  </style>
   <form method="POST" class="flex flex-col gap-10">
     <header class="page-heading">
       <div class="icon">
@@ -26,7 +43,6 @@ Please see LICENSE files in the repository root for full details.
       {% else %}
         <div class="header">
           <h1 class="title">{{ _("mas.login.headline") }}</h1>
-          <p class="text">{{ _("mas.login.description") }}</p>
         </div>
       {% endif %}
     </header>
@@ -44,17 +60,17 @@ Please see LICENSE files in the repository root for full details.
 
       {% if features.login_with_email_allowed %}
         {% call(f) field.field(label=_("mas.login.username_or_email"), name="username", form_state=form) %}
-          <input {{ field.attributes(f) }} class="cpd-text-control" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" required />
+          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" required />
         {% endcall %}
       {% else %}
         {% call(f) field.field(label=_("common.username"), name="username", form_state=form) %}
-          <input {{ field.attributes(f) }} class="cpd-text-control" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" required />
+          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" required />
         {% endcall %}
       {% endif %}
 
       {% if features.password_login %}
         {% call(f) field.field(label=_("common.password"), name="password", form_state=form) %}
-          <input {{ field.attributes(f) }} class="cpd-text-control" type="password" autocomplete="password" required />
+          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="password" autocomplete="password" required />
         {% endcall %}
 
         {% if features.account_recovery %}
@@ -85,13 +101,15 @@ Please see LICENSE files in the repository root for full details.
     </div>
 
     {% if (not next or next.kind != "link_upstream") and features.password_registration %}
-      <div class="flex gap-1 justify-center items-center cpd-text-body-md-regular">
-        <p class="cpd-text-secondary">
+      <div class="text-center cpd-text-body-md-regular">
+        <p class="cpd-text-secondary mb-4">
           {{ _("mas.login.call_to_register") }}
         </p>
 
         {% set params = next["params"] | default({}) | to_params(prefix="?") %}
-        {{ button.link_text(text=_("action.create_account"), href="/register" ~ params) }}
+        <a href="/register{{ params }}" class="cpd-button" data-kind="secondary" data-size="lg">
+          {{ _("action.create_account") }}
+        </a>
       </div>
     {% endif %}
 

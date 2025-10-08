@@ -9,6 +9,19 @@ Please see LICENSE files in the repository root for full details.
 {% extends "base.html" %}
 
 {% block content %}
+  <style>
+    body { background: linear-gradient(135deg, rgb(76 29 149), rgb(88 28 135), rgb(67 56 202)) !important; min-height: 100vh; margin: 0 !important; }
+    .layout-container { background: transparent !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; min-height: 100vh !important; padding: 1rem !important; }
+    main { background: rgba(255, 255, 255, 0.1) !important; backdrop-filter: blur(10px) !important; border-radius: 1rem !important; padding: 2rem !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; max-width: 32rem !important; margin: 0 auto !important; }
+    .title { color: white !important; font-size: 1.5rem !important; margin-bottom: 0.75rem !important; }
+    .text { color: white !important; font-size: 0.875rem !important; }
+    .cpd-text-body-md-regular { color: white !important; }
+    .cpd-button[data-kind="primary"], .cpd-button:not([data-kind]) { background: rgb(139, 92, 246) !important; border: 1px solid rgb(139, 92, 246) !important; color: white !important; }
+    .cpd-button[data-kind="primary"]:hover, .cpd-button:not([data-kind]):hover { background: rgb(124, 58, 237) !important; border: 1px solid rgb(124, 58, 237) !important; }
+    .cpd-button[data-kind="secondary"] { background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: white !important; }
+    .cpd-button[data-kind="secondary"]:hover { background: rgba(255, 255, 255, 0.2) !important; }
+    footer { display: none !important; }
+  </style>
   <main class="flex flex-col justify-center gap-6">
     <header class="page-heading">
       <div class="header">
