@@ -2973,9 +2973,9 @@ checksum = "09edd9e8b54e49e587e4f6295a7d29c3ea94d469cb40ab8ca70b288248a81db2"
 
 [[package]]
 name = "lettre"
-version = "0.11.18"
+version = "0.11.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cb54db6ff7a89efac87dba5baeac57bb9ccd726b49a9b6f21fb92b3966aaf56"
+checksum = "9e13e10e8818f8b2a60f52cb127041d388b89f3a96a62be9ceaffa22262fef7f"
 dependencies = [
  "async-std",
  "async-trait",
@@ -3104,7 +3104,7 @@ dependencies = [
 
 [[package]]
 name = "mas-axum-utils"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "axum",
@@ -3138,7 +3138,7 @@ dependencies = [
 
 [[package]]
 name = "mas-cli"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "axum",
@@ -3211,7 +3211,7 @@ dependencies = [
 
 [[package]]
 name = "mas-config"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "camino",
@@ -3243,7 +3243,7 @@ dependencies = [
 
 [[package]]
 name = "mas-context"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "console",
  "opentelemetry",
@@ -3259,7 +3259,7 @@ dependencies = [
 
 [[package]]
 name = "mas-data-model"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "base64ct",
  "chrono",
@@ -3282,7 +3282,7 @@ dependencies = [
 
 [[package]]
 name = "mas-email"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "async-trait",
  "lettre",
@@ -3293,7 +3293,7 @@ dependencies = [
 
 [[package]]
 name = "mas-handlers"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "aide",
  "anyhow",
@@ -3373,7 +3373,7 @@ dependencies = [
 
 [[package]]
 name = "mas-http"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "futures-util",
  "headers",
@@ -3394,7 +3394,7 @@ dependencies = [
 
 [[package]]
 name = "mas-i18n"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "camino",
  "icu_calendar",
@@ -3416,7 +3416,7 @@ dependencies = [
 
 [[package]]
 name = "mas-i18n-scan"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "camino",
  "clap",
@@ -3430,7 +3430,7 @@ dependencies = [
 
 [[package]]
 name = "mas-iana"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "schemars 0.8.22",
  "serde",
@@ -3438,7 +3438,7 @@ dependencies = [
 
 [[package]]
 name = "mas-iana-codegen"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3454,7 +3454,7 @@ dependencies = [
 
 [[package]]
 name = "mas-jose"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "base64ct",
  "chrono",
@@ -3484,7 +3484,7 @@ dependencies = [
 
 [[package]]
 name = "mas-keystore"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "aead",
  "base64ct",
@@ -3512,7 +3512,7 @@ dependencies = [
 
 [[package]]
 name = "mas-listener"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3537,7 +3537,7 @@ dependencies = [
 
 [[package]]
 name = "mas-matrix"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3547,7 +3547,7 @@ dependencies = [
 
 [[package]]
 name = "mas-matrix-synapse"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3564,7 +3564,7 @@ dependencies = [
 
 [[package]]
 name = "mas-oidc-client"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "assert_matches",
  "async-trait",
@@ -3600,7 +3600,7 @@ dependencies = [
 
 [[package]]
 name = "mas-policy"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -3617,7 +3617,7 @@ dependencies = [
 
 [[package]]
 name = "mas-router"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "axum",
  "serde",
@@ -3628,7 +3628,7 @@ dependencies = [
 
 [[package]]
 name = "mas-spa"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "camino",
  "serde",
@@ -3637,7 +3637,7 @@ dependencies = [
 
 [[package]]
 name = "mas-storage"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3659,7 +3659,7 @@ dependencies = [
 
 [[package]]
 name = "mas-storage-pg"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3676,6 +3676,7 @@ dependencies = [
  "sea-query",
  "sea-query-binder",
  "serde_json",
+ "sha2",
  "sqlx",
  "thiserror 2.0.17",
  "tracing",
@@ -3686,7 +3687,7 @@ dependencies = [
 
 [[package]]
 name = "mas-tasks"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3718,7 +3719,7 @@ dependencies = [
 
 [[package]]
 name = "mas-templates"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -3748,7 +3749,7 @@ dependencies = [
 
 [[package]]
 name = "mas-tower"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "http",
  "opentelemetry",
@@ -4018,7 +4019,7 @@ dependencies = [
 
 [[package]]
 name = "oauth2-types"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "assert_matches",
  "base64ct",
@@ -4676,9 +4677,9 @@ dependencies = [
 
 [[package]]
 name = "psl"
-version = "2.1.147"
+version = "2.1.148"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b0efc2f09945ea5ef176dc4f1cb703b0efa41b112d5eb27489afc880db860a7"
+checksum = "53297a72c400b31c5facd8e50894d08d20b74ee74925b28a20d51fe48c863583"
 dependencies = [
  "psl-types",
 ]
@@ -6100,7 +6101,7 @@ dependencies = [
 
 [[package]]
 name = "syn2mas"
-version = "1.4.0-rc.0"
+version = "1.4.0-rc.1"
 dependencies = [
  "anyhow",
  "arc-swap",
