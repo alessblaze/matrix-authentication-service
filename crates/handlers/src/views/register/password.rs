@@ -362,12 +362,14 @@ pub(crate) async fn post(
             .add_authentication_for_registration(&mut rng, &clock, email, &registration)
             .await?;
 
-        // Schedule a job to verify the email
+        // Schedule a job to verify the email with delay to ensure data is committed
+        let scheduled_at = clock.now() + chrono::Duration::try_milliseconds(100).unwrap();
         repo.queue_job()
-            .schedule_job(
+            .schedule_job_later(
                 &mut rng,
                 &clock,
                 SendEmailAuthenticationCodeJob::new(&user_email_authentication, locale.to_string()),
+                scheduled_at,
             )
             .await?;
 

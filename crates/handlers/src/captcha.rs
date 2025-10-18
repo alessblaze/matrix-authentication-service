@@ -245,7 +245,17 @@ impl Form {
         span.record("captcha.hostname", &hostname);
         span.record("captcha.challenge_ts", &challenge_ts);
 
-        if hostname != site_hostname {
+        // Normalize hostnames: lowercase and trim trailing dots
+        let normalize = |h: &str| h.to_lowercase().trim_end_matches('.').to_string();
+        let normalized_hostname = normalize(&hostname);
+        let normalized_site = normalize(site_hostname);
+        
+        // Allow exact match or either being a subdomain of the other
+        let hostname_matches = normalized_hostname == normalized_site
+            || normalized_hostname.ends_with(&format!(".{}", normalized_site))
+            || normalized_site.ends_with(&format!(".{}", normalized_hostname));
+            
+        if !hostname_matches {
             return Err(Error::HostnameMismatch {
                 expected: site_hostname.to_owned(),
                 got: hostname,

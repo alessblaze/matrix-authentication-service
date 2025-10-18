@@ -332,7 +332,7 @@ register_templates! {
     pub fn render_swagger_callback(ApiDocContext) { "swagger/oauth2-redirect.html" }
 
     /// Render the login page
-    pub fn render_login(WithLanguage<WithCsrf<LoginContext>>) { "pages/login.html" }
+    pub fn render_login(WithLanguage<WithCsrf<WithCaptcha<LoginContext>>>) { "pages/login.html" }
 
     /// Render the registration page
     pub fn render_register(WithLanguage<WithCsrf<RegisterContext>>) { "pages/register/index.html" }

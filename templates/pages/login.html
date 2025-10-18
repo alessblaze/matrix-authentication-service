@@ -87,6 +87,17 @@ Please see LICENSE files in the repository root for full details.
           {{ button.link_text(text=_("mas.login.forgot_password"), href="/recover", class="self-center") }}
         {% endif %}
       {% endif %}
+      
+      {{ captcha.form(class="mb-4 self-center") }}
+      
+      {% for error in form.errors %}
+        {# Special case for the captcha error #}
+        {% if error.kind == "captcha" %}
+          <div class="text-critical font-medium text-center -mt-4 mb-4">
+            {{ errors.form_error_message(error=error) }}
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
 
     <div class="cpd-form-root">

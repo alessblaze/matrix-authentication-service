@@ -8,8 +8,8 @@ use std::sync::Arc;
 
 use mas_i18n::DataLocale;
 use minijinja::{
-    Value,
-    value::{Enumerator, Object},
+    Error, ErrorKind, State, Value,
+    value::{Enumerator, Object, from_args},
 };
 use serde::Serialize;
 
@@ -35,6 +35,48 @@ impl Object for CaptchaConfig {
 
     fn enumerate(self: &Arc<Self>) -> Enumerator {
         Enumerator::Str(&["service", "site_key"])
+    }
+
+    fn call_method(
+        self: &Arc<Self>,
+        _state: &State,
+        name: &str,
+        args: &[Value],
+    ) -> Result<Value, Error> {
+        match name {
+            "form" => {
+                let (class,): (Option<&str>,) = from_args(args)?;
+                let class = class.unwrap_or("");
+                
+                let service = match &self.0.service {
+                    mas_data_model::CaptchaService::RecaptchaV2 => "recaptcha_v2",
+                    mas_data_model::CaptchaService::CloudflareTurnstile => "cloudflare_turnstile",
+                    mas_data_model::CaptchaService::HCaptcha => "hcaptcha",
+                };
+                
+                let html = match service {
+                    "recaptcha_v2" => format!(
+                        r#"<div class="g-recaptcha {}" data-sitekey="{}"></div>"#,
+                        class, self.0.site_key
+                    ),
+                    "cloudflare_turnstile" => format!(
+                        r#"<div class="cf-turnstile {}" data-sitekey="{}"></div>"#,
+                        class, self.0.site_key
+                    ),
+                    "hcaptcha" => format!(
+                        r#"<div class="h-captcha {}" data-sitekey="{}"></div>"#,
+                        class, self.0.site_key
+                    ),
+                    _ => return Err(Error::new(ErrorKind::InvalidOperation, "Invalid captcha service")),
+                };
+                
+                Ok(Value::from_safe_string(html))
+            }
+            _ => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "Invalid method on captcha",
+            )),
+        }
     }
 }
 

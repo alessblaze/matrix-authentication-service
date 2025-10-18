@@ -45,6 +45,7 @@ use zeroize::Zeroizing;
 use super::shared::OptionalPostAuthAction;
 use crate::{
     BoundActivityTracker, Limiter, METER, PreferredLanguage, RequesterFingerprint, SiteConfig,
+    captcha::Form as CaptchaForm,
     passwords::{PasswordManager, PasswordVerificationResult},
     session::{SessionOrFallback, load_session_or_fallback},
 };
@@ -72,6 +73,9 @@ pub(crate) struct LoginForm {
     username: String,
     password: String,
     otp_code: Option<String>,
+    
+    #[serde(flatten, skip_serializing)]
+    captcha: CaptchaForm,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -163,9 +167,9 @@ pub(crate) async fn post(
     State(url_builder): State<UrlBuilder>,
     State(limiter): State<Limiter>,
     State(homeserver): State<Arc<dyn HomeserverConnection>>,
+    State(http_client): State<reqwest::Client>,
     mut repo: BoxRepository,
-    activity_tracker: BoundActivityTracker,
-    requester: RequesterFingerprint,
+    (activity_tracker, requester): (BoundActivityTracker, RequesterFingerprint),
     Query(query): Query<OptionalPostAuthAction>,
     cookie_jar: CookieJar,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
@@ -179,8 +183,24 @@ pub(crate) async fn post(
 
     let form = cookie_jar.verify_form(&clock, form)?;
 
+    // Validate the captcha first
+    let passed_captcha = form
+        .captcha
+        .verify(
+            &activity_tracker,
+            &http_client,
+            url_builder.public_hostname(),
+            site_config.captcha.as_ref(),
+        )
+        .await
+        .is_ok();
+
     // Validate the form
     let mut form_state = form.to_form_state();
+    
+    if !passed_captcha {
+        form_state.add_error_on_form(FormError::Captcha);
+    }
 
     if form.username.is_empty() {
         form_state.add_error_on_field(LoginFormField::Username, FieldError::Required);
@@ -480,7 +500,7 @@ pub(crate) async fn post(
                 .await;
             }
         } else {
-            // Create a temporary session to use for email authentication
+            // Create a temporary session for email authentication
             let temp_session = repo
                 .browser_session()
                 .add(&mut rng, &clock, &user, user_agent.clone())
@@ -504,23 +524,30 @@ pub(crate) async fn post(
                 )
                 .await?;
 
-            // Schedule email sending job (following registration flow pattern)
+            // Schedule email sending job with a delay to ensure data is committed
+            let scheduled_at = clock.now() + Duration::try_milliseconds(100).unwrap();
             repo.queue_job()
-                .schedule_job(
+                .schedule_job_later(
                     &mut rng,
                     &clock,
                     SendEmailAuthenticationCodeJob::new(&user_email_authentication, locale.to_string()),
+                    scheduled_at,
                 )
                 .await?;
 
             tracing::info!(
                 auth_id = %user_email_authentication.id,
                 email = %primary_email.email,
-                "Scheduled email authentication code job for login OTP"
+                "Scheduled email authentication code job for login OTP with 100ms delay"
             );
 
             // Save everything together to ensure atomicity
             repo.save().await?;
+            
+            // Add small delay to ensure database consistency. This delay is only added because my db is slow and i need
+            // to verify why its like this. there is a race condition which would be investigated in future.
+            // by any chance this is not the solution. its just a hotfix
+            //tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
             
             let mut form_state = form.to_form_state();
             form_state.set_value(LoginFormField::Username, Some(form.username.clone()));
@@ -543,6 +570,7 @@ pub(crate) async fn post(
             let (csrf_token, cookie_jar) = cookie_jar.csrf_token(&clock, &mut rng);
             let ctx = LoginContext::default()
                 .with_form_state(form_state)
+                .with_captcha(site_config.captcha.clone())
                 .with_csrf(csrf_token.form_value())
                 .with_language(locale);
             let content = templates.render_login(&ctx)?;
@@ -654,7 +682,10 @@ async fn render(
     } else {
         ctx
     };
-    let ctx = ctx.with_csrf(csrf_token.form_value()).with_language(locale);
+    let ctx = ctx
+        .with_captcha(site_config.captcha.clone())
+        .with_csrf(csrf_token.form_value())
+        .with_language(locale);
 
     let content = templates.render_login(&ctx)?;
     Ok((cookie_jar, Html(content)).into_response())
