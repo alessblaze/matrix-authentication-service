@@ -22,7 +22,7 @@ Please see LICENSE files in the repository root for full details.
     .cpd-text-control:focus { border-color: rgb(139, 92, 246) !important; box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3) !important; }
     .cpd-button[data-kind="secondary"] { background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: white !important; }
     .cpd-button[data-kind="secondary"]:hover { background: rgba(255, 255, 255, 0.2) !important; }
-    .cpd-text-secondary { color: white !important; }
+    .cpd-text-secondary { color: rgba(196, 181, 253, 0.8) !important; }
     .title, .text { color: white !important; }
     .cpd-button[data-kind="primary"], .cpd-button:not([data-kind]) { background: rgb(139, 92, 246) !important; border: 1px solid rgb(139, 92, 246) !important; color: white !important; }
     .cpd-button[data-kind="primary"]:hover, .cpd-button:not([data-kind]):hover { background: rgb(124, 58, 237) !important; border: 1px solid rgb(124, 58, 237) !important; }
@@ -62,11 +62,11 @@ Please see LICENSE files in the repository root for full details.
 
       {% if features.login_with_email_allowed %}
         {% call(f) field.field(label=_("mas.login.username_or_email"), name="username", form_state=form) %}
-          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" required />
+          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" {% if features.email_otp_required and form.fields.username and form.fields.username.value %}readonly style="opacity: 0.7;"{% else %}required{% endif %} />
         {% endcall %}
       {% else %}
         {% call(f) field.field(label=_("common.username"), name="username", form_state=form) %}
-          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" required />
+          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" {% if features.email_otp_required and form.fields.username and form.fields.username.value %}readonly style="opacity: 0.7;"{% else %}required{% endif %} />
         {% endcall %}
       {% endif %}
 
@@ -74,6 +74,14 @@ Please see LICENSE files in the repository root for full details.
         {% call(f) field.field(label=_("common.password"), name="password", form_state=form) %}
           <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="password" autocomplete="password" required />
         {% endcall %}
+
+        {% if features.email_otp_required and form.fields.username and form.fields.username.value %}
+          <p class="cpd-text-secondary text-sm mb-4">Please write your password again and enter the verification code sent to your email</p>
+          {% call(f) field.field(label=_("mas.verify_email.6_digit_code"), name="otp_code", form_state=form) %}
+            <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" placeholder="123456" maxlength="6" inputmode="numeric" pattern="\d{6}" autocomplete="one-time-code" />
+          {% endcall %}
+          <p class="cpd-text-secondary text-sm">Check your email for verification code</p>
+        {% endif %}
 
         {% if features.account_recovery %}
           {{ button.link_text(text=_("mas.login.forgot_password"), href="/recover", class="self-center") }}

@@ -1,9 +1,12 @@
 // Copyright 2024, 2025 New Vector Ltd.
 // Copyright 2021-2024 The Matrix.org Foundation C.I.C.
-//
+// Copyright 2025 Aless Microsystems.
 // SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
 // Please see LICENSE files in the repository root for full details.
-
+// Currenly email otp is only used for login flow and it is not fully tested yet.
+// We can move email 2fa in a seperate page later. We could have added authenticator apps 
+// complexity is not the reason that we are not adding it now. the user experice is the main reason.
+// We want to keep the login flow as simple as possible for now.
 use std::sync::{Arc, LazyLock};
 
 use axum::{
@@ -18,13 +21,16 @@ use mas_axum_utils::{
     csrf::{CsrfExt, ProtectedForm},
 };
 use mas_data_model::{BoxClock, BoxRng, Clock, oauth2::LoginHint};
+use ulid::Ulid;
+use chrono::Duration;
 use mas_i18n::DataLocale;
 use mas_matrix::HomeserverConnection;
 use mas_router::{UpstreamOAuth2Authorize, UrlBuilder};
 use mas_storage::{
     BoxRepository, RepositoryAccess,
+    queue::{QueueJobRepositoryExt as _, SendEmailAuthenticationCodeJob},
     upstream_oauth2::UpstreamOAuthProviderRepository,
-    user::{BrowserSessionRepository, UserPasswordRepository, UserRepository},
+    user::{BrowserSessionRepository, UserEmailRepository, UserPasswordRepository, UserRepository},
 };
 use mas_templates::{
     AccountInactiveContext, FieldError, FormError, FormState, LoginContext, LoginFormField,
@@ -33,6 +39,7 @@ use mas_templates::{
 use opentelemetry::{Key, KeyValue, metrics::Counter};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use sha2::{Sha256, Digest};
 use zeroize::Zeroizing;
 
 use super::shared::OptionalPostAuthAction;
@@ -51,10 +58,27 @@ static PASSWORD_LOGIN_COUNTER: LazyLock<Counter<u64>> = LazyLock::new(|| {
 });
 const RESULT: Key = Key::from_static_str("result");
 
+fn create_fingerprint_hash(requester: &RequesterFingerprint, user_id: &Ulid) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(b"login_otp_fingerprint:");
+    hasher.update(user_id.to_bytes());
+    hasher.update(b":");
+    hasher.update(format!("{:?}", requester).as_bytes());
+    format!("{:x}", hasher.finalize())
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub(crate) struct LoginForm {
     username: String,
     password: String,
+    otp_code: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct LoginOtpContext {
+    auth_id: String,
+    user_id: String,
+    fingerprint_hash: String,
 }
 
 impl ToFormState for LoginForm {
@@ -252,7 +276,7 @@ pub(crate) async fn post(
         .await;
     };
 
-    let password = Zeroizing::new(form.password);
+    let password = Zeroizing::new(form.password.clone());
 
     // Verify the password, and upgrade it on-the-fly if needed
     let user_password = match password_manager
@@ -327,6 +351,205 @@ pub(crate) async fn post(
     // want it to crash in tests/debug builds
     debug_assert!(user.is_valid());
 
+    // Check if email OTP is required
+    if site_config.email_otp_required {
+        // Get user's primary email
+        let user_emails = repo.user_email().all(&user).await?;
+        let Some(primary_email) = user_emails.first() else {
+            tracing::warn!(username, "User has no verified email for OTP verification");
+            let form_state = form_state.with_error_on_form(FormError::InvalidCredentials);
+            PASSWORD_LOGIN_COUNTER.add(1, &[KeyValue::new(RESULT, "error")]);
+            return render(
+                locale,
+                cookie_jar,
+                form_state,
+                query,
+                &mut repo,
+                &clock,
+                &mut rng,
+                &templates,
+                &homeserver,
+                &site_config,
+            )
+            .await;
+        };
+
+        if let Some(ref otp_code) = form.otp_code {
+            // Normalize and validate OTP code format
+            let code = otp_code.trim();
+            if code.is_empty() || code.len() != 6 || !code.chars().all(|c| c.is_ascii_digit()) {
+                let mut form_state = form.to_form_state();
+                form_state.set_value(LoginFormField::Username, Some(form.username.clone()));
+                form_state.add_error_on_form(FormError::InvalidCredentials);
+                PASSWORD_LOGIN_COUNTER.add(1, &[KeyValue::new(RESULT, "error")]);
+                return render(
+                    locale,
+                    cookie_jar,
+                    form_state,
+                    query,
+                    &mut repo,
+                    &clock,
+                    &mut rng,
+                    &templates,
+                    &homeserver,
+                    &site_config,
+                )
+                .await;
+            }
+            
+            // Try to get the authentication context from the cookie
+            let auth_valid = if let Ok(Some(otp_context)) = cookie_jar.load::<LoginOtpContext>("login_email_auth_context") {
+                // Verify the context belongs to the current user and requester
+                let expected_fingerprint = create_fingerprint_hash(&requester, &user.id);
+                if otp_context.user_id != user.id.to_string() {
+                    tracing::warn!("OTP context user mismatch for user {}", user.username);
+                    false
+                } else if otp_context.fingerprint_hash != expected_fingerprint {
+                    tracing::warn!("OTP context fingerprint mismatch for user {}", user.username);
+                    false
+                } else if let Ok(auth_id) = otp_context.auth_id.parse::<Ulid>() {
+                    // Look up the authentication record
+                    let email_authentication = repo.user_email().lookup_authentication(auth_id).await?;
+                    if let Some(email_authentication) = email_authentication {
+                        // Security validations per NIST 800-63B and MFA guidance:
+                        
+                        // 1. Verify authentication belongs to the same user
+                        let user_emails = repo.user_email().all(&user).await?;
+                        let auth_belongs_to_user = user_emails.iter().any(|email| email.email == email_authentication.email);
+                        
+                        if !auth_belongs_to_user {
+                            tracing::warn!("OTP authentication email mismatch for user {}", user.username);
+                            false
+                        }
+                        // 2. Verify authentication is still pending (not already completed)
+                        else if email_authentication.completed_at.is_some() {
+                            tracing::warn!("OTP authentication already completed for user {}", user.username);
+                            false
+                        }
+                        // 3. Check rate limiting for OTP attempts (NIST 800-63B requirement)
+                        else if let Err(e) = limiter.check_email_authentication_attempt(&email_authentication) {
+                            tracing::warn!(error = &e as &dyn std::error::Error, "OTP rate limit exceeded for user {}", user.username);
+                            false
+                        }
+                        else {
+                            // Find the authentication code
+                            let code_result = repo.user_email().find_authentication_code(&email_authentication, code).await?;
+                            if let Some(auth_code) = code_result {
+                                // 4. Verify code has not expired (TTL check)
+                                if auth_code.expires_at <= clock.now() {
+                                    tracing::warn!("Expired OTP code for user {}", user.username);
+                                    false
+                                } else {
+                                    // Complete the authentication (enforces single-use)
+                                    repo.user_email().complete_authentication(&clock, email_authentication, &auth_code).await?;
+                                    true // OTP verified
+                                }
+                            } else {
+                                tracing::warn!("Invalid OTP code for user {}", user.username);
+                                false // Invalid OTP code
+                            }
+                        }
+                    } else {
+                        false // Authentication record not found
+                    }
+                } else {
+                    false // Invalid auth ID format
+                }
+            } else {
+                false // No cookie found
+            };
+            
+            if !auth_valid {
+                // Invalid OTP - show error
+                let mut form_state = form.to_form_state();
+                form_state.set_value(LoginFormField::Username, Some(form.username.clone()));
+                form_state.add_error_on_form(FormError::InvalidCredentials);
+                PASSWORD_LOGIN_COUNTER.add(1, &[KeyValue::new(RESULT, "error")]);
+                return render(
+                    locale,
+                    cookie_jar,
+                    form_state,
+                    query,
+                    &mut repo,
+                    &clock,
+                    &mut rng,
+                    &templates,
+                    &homeserver,
+                    &site_config,
+                )
+                .await;
+            }
+        } else {
+            // Create a temporary session to use for email authentication
+            let temp_session = repo
+                .browser_session()
+                .add(&mut rng, &clock, &user, user_agent.clone())
+                .await?;
+
+            // Create email authentication for this login session
+            let user_email_authentication = repo
+                .user_email()
+                .add_authentication_for_session(&mut rng, &clock, primary_email.email.clone(), &temp_session)
+                .await?;
+
+            // Generate and add the authentication code
+            let code = format!("{:06}", rng.gen_range(100000..1000000));
+            repo.user_email()
+                .add_authentication_code(
+                    &mut rng,
+                    &clock,
+                    Duration::try_minutes(10).unwrap(),
+                    &user_email_authentication,
+                    code,
+                )
+                .await?;
+
+            // Schedule email sending job (following registration flow pattern)
+            repo.queue_job()
+                .schedule_job(
+                    &mut rng,
+                    &clock,
+                    SendEmailAuthenticationCodeJob::new(&user_email_authentication, locale.to_string()),
+                )
+                .await?;
+
+            tracing::info!(
+                auth_id = %user_email_authentication.id,
+                email = %primary_email.email,
+                "Scheduled email authentication code job for login OTP"
+            );
+
+            // Save everything together to ensure atomicity
+            repo.save().await?;
+            
+            let mut form_state = form.to_form_state();
+            form_state.set_value(LoginFormField::Username, Some(form.username.clone()));
+            
+            // Store the authentication context in a cookie with user binding and fingerprint
+            let otp_context = LoginOtpContext {
+                auth_id: user_email_authentication.id.to_string(),
+                user_id: user.id.to_string(),
+                fingerprint_hash: create_fingerprint_hash(&requester, &user.id),
+            };
+            let cookie_jar = cookie_jar.save(
+                "login_email_auth_context",
+                &otp_context,
+                false,
+            );
+            
+            // We need a new repository instance for rendering since save() consumed the old one
+            // This is a limitation of the current architecture - we'll need to get a new repo
+            // For now, let's just return a simple response without using the render function
+            let (csrf_token, cookie_jar) = cookie_jar.csrf_token(&clock, &mut rng);
+            let ctx = LoginContext::default()
+                .with_form_state(form_state)
+                .with_csrf(csrf_token.form_value())
+                .with_language(locale);
+            let content = templates.render_login(&ctx)?;
+            return Ok((cookie_jar, Html(content)).into_response());
+        }
+    }
+
     // Start a new session
     let user_session = repo
         .browser_session()
@@ -347,6 +570,8 @@ pub(crate) async fn post(
         .await;
 
     let cookie_jar = cookie_jar.set_session(&user_session);
+    // Clean up the authentication context cookie
+    let cookie_jar = cookie_jar.remove("login_email_auth_context");
     let reply = query.go_next(&url_builder);
     Ok((cookie_jar, reply).into_response())
 }

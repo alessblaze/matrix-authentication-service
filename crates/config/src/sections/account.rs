@@ -88,6 +88,13 @@ pub struct AccountConfig {
     /// is disabled.
     #[serde(default = "default_false", skip_serializing_if = "is_default_false")]
     pub registration_token_required: bool,
+
+    /// Whether email OTP is required for login. Defaults to `false`.
+    ///
+    /// When enabled, users must provide a valid OTP code sent to their email
+    /// address during login. This has no effect if password login is disabled.
+    #[serde(default = "default_false", skip_serializing_if = "is_default_false")]
+    pub email_otp_required: bool,
 }
 
 impl Default for AccountConfig {
@@ -102,6 +109,7 @@ impl Default for AccountConfig {
             account_deactivation_allowed: default_true(),
             login_with_email_allowed: default_false(),
             registration_token_required: default_false(),
+            email_otp_required: default_false(),
         }
     }
 }
@@ -117,6 +125,7 @@ impl AccountConfig {
             && is_default_true(&self.account_deactivation_allowed)
             && is_default_false(&self.login_with_email_allowed)
             && is_default_false(&self.registration_token_required)
+            && is_default_false(&self.email_otp_required)
     }
 }
 
