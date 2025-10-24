@@ -280,7 +280,7 @@ pub(crate) async fn get(
     }
     // Provision synchronously before DB commit to avoid split-brain state.
     // If provisioning fails, the transaction rolls back and no user is created in MAS.
-    // This eliminates the need for manual cleanup when Synapse provisioning fails.
+    // This eliminates the need for manual cleanup when Synapse provisioning fails in gogone.
     let emails = repo
         .user_email()
         .all(&user)
