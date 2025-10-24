@@ -71,6 +71,9 @@ pub enum FormError {
 
     /// Failed to validate CAPTCHA
     Captcha,
+
+    /// Cookies are required but disabled
+    CookiesRequired,
 }
 
 #[derive(Debug, Default, Serialize)]

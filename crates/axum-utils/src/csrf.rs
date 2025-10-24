@@ -18,11 +18,11 @@ use crate::cookies::{CookieDecodeError, CookieJar};
 #[derive(Debug, Error)]
 pub enum CsrfError {
     /// The token in the form did not match the token in the cookie
-    #[error("CSRF token mismatch")]
+    #[error("CSRF token mismatch. Start a new session and try again.")]
     Mismatch,
 
     /// The token in the form did not match the token in the cookie
-    #[error("Missing CSRF cookie")]
+    #[error("Missing CSRF cookie. Check if cookies are enabled. Do not refresh while registering or logging in.")]
     Missing,
 
     /// Failed to decode the token

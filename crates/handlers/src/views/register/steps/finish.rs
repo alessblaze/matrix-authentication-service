@@ -21,6 +21,7 @@ use mas_storage::{
     queue::{ProvisionUserJob, QueueJobRepositoryExt as _},
     user::UserEmailFilter,
 };
+use mas_matrix::ProvisionRequest;
 use mas_templates::{RegisterStepsEmailInUseContext, TemplateContext as _, Templates};
 use opentelemetry::metrics::Counter;
 use ulid::Ulid;
@@ -83,7 +84,7 @@ pub(crate) async fn get(
 
     // Make sure the registration session hasn't expired
     // XXX: this duration is hard-coded, could be configurable
-    if clock.now() - registration.created_at > Duration::hours(1) {
+    if clock.now() - registration.created_at > Duration::minutes(10) {
         return Err(InternalError::from_anyhow(anyhow::anyhow!(
             "Registration session has expired"
         )));
@@ -94,7 +95,7 @@ pub(crate) async fn get(
     if !registrations.contains(&registration) {
         // XXX: we should have a better error screen here
         return Err(InternalError::from_anyhow(anyhow::anyhow!(
-            "Could not find the registration in the browser cookies"
+            "Could not find the registration in the browser cookies, Check that cookies are enabled."
         )));
     }
 
@@ -277,12 +278,48 @@ pub(crate) async fn get(
             .accept_terms(&mut rng, &clock, &user, terms_url)
             .await?;
     }
-
-    let mut job = ProvisionUserJob::new(&user);
+    // Provision synchronously before DB commit to avoid split-brain state.
+    // If provisioning fails, the transaction rolls back and no user is created in MAS.
+    // This eliminates the need for manual cleanup when Synapse provisioning fails.
+    let emails = repo
+        .user_email()
+        .all(&user)
+        .await?
+        .into_iter()
+        .map(|email| email.email)
+        .collect();
+    let mut request = ProvisionRequest::new(user.username.clone(), user.sub.clone())
+        .set_emails(emails);
+    
     if let Some(display_name) = registration.display_name {
-        job = job.set_display_name(display_name);
+        request = request.set_displayname(display_name);
     }
-    repo.queue_job().schedule_job(&mut rng, &clock, job).await?;
+    
+    // Provision with retries
+    for attempt in 1..=3 {
+        match homeserver.provision_user(&request).await {
+            Ok(_) => break,
+            Err(e) if attempt < 3 => {
+                tracing::warn!("Provision attempt {} failed: {}", attempt, e);
+                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                continue;
+            }
+            Err(e) => return Err(InternalError::from_anyhow(e)),
+        }
+    }
+
+    // Sync devices after user provisioning (empty device list for new user)
+    for attempt in 1..=3 {
+        match homeserver.sync_devices(&user.username, std::collections::HashSet::new()).await {
+            Ok(_) => break,
+            Err(e) if attempt < 3 => {
+                tracing::warn!("Device sync attempt {} failed: {}", attempt, e);
+                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                continue;
+            }
+            Err(e) => return Err(InternalError::from_anyhow(e)),
+        }
+    }
 
     repo.save().await?;
 
