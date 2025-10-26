@@ -9,7 +9,7 @@ members = ["crates/*"]
 resolver = "2"
 
 # Updated in the CI with a `sed` command
-package.version = "1.4.1"
+package.version = "1.5.0-rc.1"
 package.license = "AGPL-3.0-only OR LicenseRef-Element-Commercial"
 package.authors = ["Element Backend Team"]
 package.edition = "2024"
@@ -34,40 +34,40 @@ broken_intra_doc_links = "deny"
 [workspace.dependencies]
 
 # Workspace crates
-mas-axum-utils = { path = "./crates/axum-utils/", version = "=1.4.1" }
-mas-cli = { path = "./crates/cli/", version = "=1.4.1" }
-mas-config = { path = "./crates/config/", version = "=1.4.1" }
-mas-context = { path = "./crates/context/", version = "=1.4.1" }
-mas-data-model = { path = "./crates/data-model/", version = "=1.4.1" }
-mas-email = { path = "./crates/email/", version = "=1.4.1" }
-mas-graphql = { path = "./crates/graphql/", version = "=1.4.1" }
-mas-handlers = { path = "./crates/handlers/", version = "=1.4.1" }
-mas-http = { path = "./crates/http/", version = "=1.4.1" }
-mas-i18n = { path = "./crates/i18n/", version = "=1.4.1" }
-mas-i18n-scan = { path = "./crates/i18n-scan/", version = "=1.4.1" }
-mas-iana = { path = "./crates/iana/", version = "=1.4.1" }
-mas-iana-codegen = { path = "./crates/iana-codegen/", version = "=1.4.1" }
-mas-jose = { path = "./crates/jose/", version = "=1.4.1" }
-mas-keystore = { path = "./crates/keystore/", version = "=1.4.1" }
-mas-listener = { path = "./crates/listener/", version = "=1.4.1" }
-mas-matrix = { path = "./crates/matrix/", version = "=1.4.1" }
-mas-matrix-synapse = { path = "./crates/matrix-synapse/", version = "=1.4.1" }
-mas-oidc-client = { path = "./crates/oidc-client/", version = "=1.4.1" }
-mas-policy = { path = "./crates/policy/", version = "=1.4.1" }
-mas-router = { path = "./crates/router/", version = "=1.4.1" }
-mas-spa = { path = "./crates/spa/", version = "=1.4.1" }
-mas-storage = { path = "./crates/storage/", version = "=1.4.1" }
-mas-storage-pg = { path = "./crates/storage-pg/", version = "=1.4.1" }
-mas-tasks = { path = "./crates/tasks/", version = "=1.4.1" }
-mas-templates = { path = "./crates/templates/", version = "=1.4.1" }
-mas-tower = { path = "./crates/tower/", version = "=1.4.1" }
-oauth2-types = { path = "./crates/oauth2-types/", version = "=1.4.1" }
-syn2mas = { path = "./crates/syn2mas", version = "=1.4.1" }
+mas-axum-utils = { path = "./crates/axum-utils/", version = "=1.5.0-rc.1" }
+mas-cli = { path = "./crates/cli/", version = "=1.5.0-rc.1" }
+mas-config = { path = "./crates/config/", version = "=1.5.0-rc.1" }
+mas-context = { path = "./crates/context/", version = "=1.5.0-rc.1" }
+mas-data-model = { path = "./crates/data-model/", version = "=1.5.0-rc.1" }
+mas-email = { path = "./crates/email/", version = "=1.5.0-rc.1" }
+mas-graphql = { path = "./crates/graphql/", version = "=1.5.0-rc.1" }
+mas-handlers = { path = "./crates/handlers/", version = "=1.5.0-rc.1" }
+mas-http = { path = "./crates/http/", version = "=1.5.0-rc.1" }
+mas-i18n = { path = "./crates/i18n/", version = "=1.5.0-rc.1" }
+mas-i18n-scan = { path = "./crates/i18n-scan/", version = "=1.5.0-rc.1" }
+mas-iana = { path = "./crates/iana/", version = "=1.5.0-rc.1" }
+mas-iana-codegen = { path = "./crates/iana-codegen/", version = "=1.5.0-rc.1" }
+mas-jose = { path = "./crates/jose/", version = "=1.5.0-rc.1" }
+mas-keystore = { path = "./crates/keystore/", version = "=1.5.0-rc.1" }
+mas-listener = { path = "./crates/listener/", version = "=1.5.0-rc.1" }
+mas-matrix = { path = "./crates/matrix/", version = "=1.5.0-rc.1" }
+mas-matrix-synapse = { path = "./crates/matrix-synapse/", version = "=1.5.0-rc.1" }
+mas-oidc-client = { path = "./crates/oidc-client/", version = "=1.5.0-rc.1" }
+mas-policy = { path = "./crates/policy/", version = "=1.5.0-rc.1" }
+mas-router = { path = "./crates/router/", version = "=1.5.0-rc.1" }
+mas-spa = { path = "./crates/spa/", version = "=1.5.0-rc.1" }
+mas-storage = { path = "./crates/storage/", version = "=1.5.0-rc.1" }
+mas-storage-pg = { path = "./crates/storage-pg/", version = "=1.5.0-rc.1" }
+mas-tasks = { path = "./crates/tasks/", version = "=1.5.0-rc.1" }
+mas-templates = { path = "./crates/templates/", version = "=1.5.0-rc.1" }
+mas-tower = { path = "./crates/tower/", version = "=1.5.0-rc.1" }
+oauth2-types = { path = "./crates/oauth2-types/", version = "=1.5.0-rc.1" }
+syn2mas = { path = "./crates/syn2mas", version = "=1.5.0-rc.1" }
 
 # OpenAPI schema generation and validation
 [workspace.dependencies.aide]
 version = "0.14.2"
-features = ["axum", "axum-extra", "axum-json", "axum-query", "macros"]
+features = ["axum", "axum-extra", "axum-extra-query", "axum-json", "macros"]
 
 # An `Arc` that can be atomically updated
 [workspace.dependencies.arc-swap]
@@ -101,7 +101,7 @@ version = "0.8.6"
 # Extra utilities for Axum
 [workspace.dependencies.axum-extra]
 version = "0.10.3"
-features = ["cookie-private", "cookie-key-expansion", "typed-header"]
+features = ["cookie-private", "cookie-key-expansion", "typed-header", "query"]
 
 # Axum macros
 [workspace.dependencies.axum-macros]
@@ -167,7 +167,7 @@ features = ["serde", "clock"]
 
 # CLI argument parsing
 [workspace.dependencies.clap]
-version = "4.5.48"
+version = "4.5.50"
 features = ["derive"]
 
 # Object Identifiers (OIDs) as constants
@@ -492,11 +492,11 @@ version = "0.6.4"
 
 # Regular expressions
 [workspace.dependencies.regex]
-version = "1.11.3"
+version = "1.12.2"
 
 # High-level HTTP client
 [workspace.dependencies.reqwest]
-version = "0.12.23"
+version = "0.12.24"
 default-features = false
 features = [
     "http2",
@@ -517,7 +517,7 @@ version = "2.1.1"
 
 # Matrix-related types
 [workspace.dependencies.ruma-common]
-version = "0.15.4"
+version = "0.16.0"
 
 # TLS stack
 [workspace.dependencies.rustls]
@@ -567,18 +567,18 @@ features = [
 
 # Sentry error tracking
 [workspace.dependencies.sentry]
-version = "0.42.0"
+version = "0.45.0"
 default-features = false
 features = ["backtrace", "contexts", "panic", "tower", "reqwest"]
 
 # Sentry tower layer
 [workspace.dependencies.sentry-tower]
-version = "0.42.0"
+version = "0.45.0"
 features = ["http", "axum-matched-path"]
 
 # Sentry tracing integration
 [workspace.dependencies.sentry-tracing]
-version = "0.42.0"
+version = "0.45.0"
 
 # Serialization and deserialization
 [workspace.dependencies.serde]
@@ -614,7 +614,7 @@ version = "2.2.0"
 
 # Low-level socket manipulation
 [workspace.dependencies.socket2]
-version = "0.6.0"
+version = "0.6.1"
 
 # Subject Public Key Info
 [workspace.dependencies.spki]
@@ -644,7 +644,7 @@ version = "0.3.0"
 
 # Async runtime
 [workspace.dependencies.tokio]
-version = "1.47.1"
+version = "1.48.0"
 features = ["full"]
 
 [workspace.dependencies.tokio-stream]

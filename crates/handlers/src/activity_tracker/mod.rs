@@ -10,7 +10,9 @@ mod worker;
 use std::net::IpAddr;
 
 use chrono::{DateTime, Utc};
-use mas_data_model::{BrowserSession, Clock, CompatSession, Session};
+use mas_data_model::{
+    BrowserSession, Clock, CompatSession, Session, personal::session::PersonalSession,
+};
 use mas_storage::BoxRepositoryFactory;
 use tokio_util::{sync::CancellationToken, task::TaskTracker};
 use ulid::Ulid;
@@ -111,11 +113,11 @@ impl ActivityTracker {
         }
     }
 
-    /// Record activity in a personal access token session.
-    pub async fn record_personal_access_token_session(
+    /// Record activity in a personal session.
+    pub async fn record_personal_session(
         &self,
         clock: &dyn Clock,
-        session: &Session,
+        session: &PersonalSession,
         ip: Option<IpAddr>,
     ) {
         let res = self

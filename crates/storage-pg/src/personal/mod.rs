@@ -105,16 +105,16 @@ mod tests {
 
         let full_list = repo.personal_session().list(all, pagination).await.unwrap();
         assert_eq!(full_list.edges.len(), 1);
-        assert_eq!(full_list.edges[0].node.id, session.id);
-        assert!(full_list.edges[0].node.is_valid());
+        assert_eq!(full_list.edges[0].node.0.id, session.id);
+        assert!(full_list.edges[0].node.0.is_valid());
         let active_list = repo
             .personal_session()
             .list(active, pagination)
             .await
             .unwrap();
         assert_eq!(active_list.edges.len(), 1);
-        assert_eq!(active_list.edges[0].node.id, session.id);
-        assert!(active_list.edges[0].node.is_valid());
+        assert_eq!(active_list.edges[0].node.0.id, session.id);
+        assert!(active_list.edges[0].node.0.is_valid());
         let finished_list = repo
             .personal_session()
             .list(finished, pagination)
@@ -154,7 +154,7 @@ mod tests {
 
         let full_list = repo.personal_session().list(all, pagination).await.unwrap();
         assert_eq!(full_list.edges.len(), 1);
-        assert_eq!(full_list.edges[0].node.id, session.id);
+        assert_eq!(full_list.edges[0].node.0.id, session.id);
         let active_list = repo
             .personal_session()
             .list(active, pagination)
@@ -167,8 +167,8 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(finished_list.edges.len(), 1);
-        assert_eq!(finished_list.edges[0].node.id, session.id);
-        assert!(finished_list.edges[0].node.is_revoked());
+        assert_eq!(finished_list.edges[0].node.0.id, session.id);
+        assert!(finished_list.edges[0].node.0.is_revoked());
 
         // Reload the session and check again
         let session_lookup = repo
@@ -179,6 +179,104 @@ mod tests {
             .expect("personal session not found");
         assert!(!session_lookup.is_valid());
         assert!(session_lookup.is_revoked());
+    }
+
+    #[sqlx::test(migrator = "crate::MIGRATOR")]
+    async fn test_session_revoke_bulk(pool: PgPool) {
+        let mut rng = ChaChaRng::seed_from_u64(42);
+        let clock = MockClock::default();
+        let mut repo = PgRepository::from_pool(&pool).await.unwrap();
+
+        let alice_user = repo
+            .user()
+            .add(&mut rng, &clock, "alice".to_owned())
+            .await
+            .unwrap();
+        let bob_user = repo
+            .user()
+            .add(&mut rng, &clock, "bob".to_owned())
+            .await
+            .unwrap();
+
+        let session1 = repo
+            .personal_session()
+            .add(
+                &mut rng,
+                &clock,
+                (&alice_user).into(),
+                &bob_user,
+                "Test Personal Session".to_owned(),
+                "openid".parse().unwrap(),
+            )
+            .await
+            .unwrap();
+        repo.personal_access_token()
+            .add(
+                &mut rng,
+                &clock,
+                &session1,
+                "mpt_hiss",
+                Some(Duration::days(42)),
+            )
+            .await
+            .unwrap();
+
+        let session2 = repo
+            .personal_session()
+            .add(
+                &mut rng,
+                &clock,
+                (&bob_user).into(),
+                &bob_user,
+                "Test Personal Session".to_owned(),
+                "openid".parse().unwrap(),
+            )
+            .await
+            .unwrap();
+        repo.personal_access_token()
+            .add(
+                &mut rng, &clock, &session2, "mpt_meow", // No expiry
+                None,
+            )
+            .await
+            .unwrap();
+
+        // Just one session without a token expiry time
+        assert_eq!(
+            repo.personal_session()
+                .revoke_bulk(
+                    &clock,
+                    PersonalSessionFilter::new()
+                        .active_only()
+                        .with_expires(false)
+                )
+                .await
+                .unwrap(),
+            1
+        );
+
+        // Just one session with a token expiry time
+        assert_eq!(
+            repo.personal_session()
+                .revoke_bulk(
+                    &clock,
+                    PersonalSessionFilter::new()
+                        .active_only()
+                        .with_expires(true)
+                )
+                .await
+                .unwrap(),
+            1
+        );
+
+        // No active sessions left
+        assert_eq!(
+            repo.personal_session()
+                .revoke_bulk(&clock, PersonalSessionFilter::new().active_only())
+                .await
+                .unwrap(),
+            0
+        );
     }
 
     #[sqlx::test(migrator = "crate::MIGRATOR")]
@@ -286,6 +384,11 @@ mod tests {
         assert!(!token.is_valid(clock.now()));
 
         // Add a second access token, this time without expiration
+        let _token = repo
+            .personal_access_token()
+            .revoke(&clock, token)
+            .await
+            .unwrap();
         let token = repo
             .personal_access_token()
             .add(&mut rng, &clock, &session, SECOND_TOKEN, None)
