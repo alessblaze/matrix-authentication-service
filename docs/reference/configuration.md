@@ -222,7 +222,7 @@ The secret is not updated when the content of the file changes.
 > Changing the encryption secret afterwards will lead to a loss of all encrypted
 > information in the database.
 
-### `secrets.keys`
+### Singing Keys
 
 The service can use a number of key types for signing.
 The following key types are supported:
@@ -232,14 +232,25 @@ The following key types are supported:
 - ECDSA with the P-384 (`secp384r1`) curve
 - ECDSA with the K-256 (`secp256k1`) curve
 
-Each entry in the list corresponds to one signing key used by MAS.
-The key can either be specified inline (with the `key` property),
-or loaded from a file (with the `key_file` property).
 The following key formats are supported:
 
 - PKCS#1 PEM or DER-encoded RSA private key
 - PKCS#8 PEM or DER-encoded RSA or ECDSA private key, encrypted or not
 - SEC1 PEM or DER-encoded ECDSA private key
+
+The keys can be given as a directory path via `secrets.keys_dir`
+or, alternatively, as an inline configuration list via `secrets.keys`.
+
+#### `secrets.keys_dir`
+
+Path to the directory containing MAS signing key files.
+Only keys that don’t require a password are supported.
+
+#### `secrets.keys`
+
+Each entry in the list corresponds to one signing key used by MAS.
+The key can either be specified inline (with the `key` property),
+or loaded from a file (with the `key_file` property).
 
 A [JWK Key ID] is automatically derived from each key.
 To override this default, set `kid` to a custom value.
@@ -642,7 +653,8 @@ upstream_oauth2:
       # The client secret to use to authenticate to the provider
       # This is only used by the `client_secret_post`, `client_secret_basic`
       # and `client_secret_jwk` authentication methods
-      #client_secret: f4f6bb68a0269264877e9cb23b1856ab
+      client_secret_file: secret
+      # OR client_secret: f4f6bb68a0269264877e9cb23b1856ab
 
       # Which authentication method to use to authenticate to the provider
       # Supported methods are:
@@ -781,15 +793,6 @@ upstream_oauth2:
         email:
           #action: suggest
           #template: "{{ user.email }}"
-
-          # Whether the email address must be marked as verified.
-          # Possible values are:
-          #  - `import`: mark the email address as verified if the upstream provider
-          #     has marked it as verified, using the `email_verified` claim.
-          #     This is the default.
-          #   - `always`: mark the email address as verified
-          #   - `never`: mark the email address as not verified
-          #set_email_verification: import
 
         # An account name, for display purposes only
         # This helps end user identify what account they are using
