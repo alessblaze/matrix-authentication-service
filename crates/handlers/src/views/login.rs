@@ -461,7 +461,7 @@ pub(crate) async fn post(
                                     false
                                 } else {
                                     // Complete the authentication (enforces single-use)
-                                    repo.user_email().complete_authentication(&clock, email_authentication, &auth_code).await?;
+                                    repo.user_email().complete_authentication_with_code(&clock, email_authentication, &auth_code).await?;
                                     true // OTP verified
                                 }
                             } else {
