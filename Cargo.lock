@@ -3097,7 +3097,7 @@ dependencies = [
 
 [[package]]
 name = "mas-axum-utils"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "axum",
@@ -3131,7 +3131,7 @@ dependencies = [
 
 [[package]]
 name = "mas-cli"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "axum",
@@ -3170,6 +3170,8 @@ dependencies = [
  "mas-tower",
  "opentelemetry",
  "opentelemetry-http",
+ "opentelemetry-instrumentation-process",
+ "opentelemetry-instrumentation-tokio",
  "opentelemetry-jaeger-propagator",
  "opentelemetry-otlp",
  "opentelemetry-prometheus-text-exporter",
@@ -3204,7 +3206,7 @@ dependencies = [
 
 [[package]]
 name = "mas-config"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "camino",
@@ -3222,7 +3224,6 @@ dependencies = [
  "pem-rfc7468",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rustls-pemfile",
  "rustls-pki-types",
  "schemars 0.9.0",
  "serde",
@@ -3236,7 +3237,7 @@ dependencies = [
 
 [[package]]
 name = "mas-context"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "console",
  "opentelemetry",
@@ -3252,7 +3253,7 @@ dependencies = [
 
 [[package]]
 name = "mas-data-model"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "base64ct",
  "chrono",
@@ -3275,7 +3276,7 @@ dependencies = [
 
 [[package]]
 name = "mas-email"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "async-trait",
  "lettre",
@@ -3286,7 +3287,7 @@ dependencies = [
 
 [[package]]
 name = "mas-handlers"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "aide",
  "anyhow",
@@ -3366,7 +3367,7 @@ dependencies = [
 
 [[package]]
 name = "mas-http"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "futures-util",
  "headers",
@@ -3387,7 +3388,7 @@ dependencies = [
 
 [[package]]
 name = "mas-i18n"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "camino",
  "icu_calendar",
@@ -3409,7 +3410,7 @@ dependencies = [
 
 [[package]]
 name = "mas-i18n-scan"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "camino",
  "clap",
@@ -3423,7 +3424,7 @@ dependencies = [
 
 [[package]]
 name = "mas-iana"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "schemars 0.9.0",
  "serde",
@@ -3431,7 +3432,7 @@ dependencies = [
 
 [[package]]
 name = "mas-iana-codegen"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3448,7 +3449,7 @@ dependencies = [
 
 [[package]]
 name = "mas-jose"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "base64ct",
  "chrono",
@@ -3478,7 +3479,7 @@ dependencies = [
 
 [[package]]
 name = "mas-keystore"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "aead",
  "base64ct",
@@ -3506,7 +3507,7 @@ dependencies = [
 
 [[package]]
 name = "mas-listener"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3516,7 +3517,6 @@ dependencies = [
  "hyper-util",
  "mas-context",
  "pin-project-lite",
- "rustls-pemfile",
  "socket2",
  "thiserror 2.0.17",
  "tokio",
@@ -3531,7 +3531,7 @@ dependencies = [
 
 [[package]]
 name = "mas-matrix"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3541,7 +3541,7 @@ dependencies = [
 
 [[package]]
 name = "mas-matrix-synapse"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3558,7 +3558,7 @@ dependencies = [
 
 [[package]]
 name = "mas-oidc-client"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "assert_matches",
  "async-trait",
@@ -3594,7 +3594,7 @@ dependencies = [
 
 [[package]]
 name = "mas-policy"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -3611,7 +3611,7 @@ dependencies = [
 
 [[package]]
 name = "mas-router"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "axum",
  "serde",
@@ -3622,7 +3622,7 @@ dependencies = [
 
 [[package]]
 name = "mas-spa"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "camino",
  "serde",
@@ -3631,7 +3631,7 @@ dependencies = [
 
 [[package]]
 name = "mas-storage"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3653,7 +3653,7 @@ dependencies = [
 
 [[package]]
 name = "mas-storage-pg"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3683,7 +3683,7 @@ dependencies = [
 
 [[package]]
 name = "mas-tasks"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3715,7 +3715,7 @@ dependencies = [
 
 [[package]]
 name = "mas-templates"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -3747,7 +3747,7 @@ dependencies = [
 
 [[package]]
 name = "mas-tower"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "http",
  "opentelemetry",
@@ -3934,11 +3934,10 @@ dependencies = [
 
 [[package]]
 name = "num-bigint-dig"
-version = "0.8.4"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc84195820f291c7697304f3cbdadd1cb7199c0efc917ff5eafd71225c136151"
+checksum = "e661dda6640fad38e827a6d4a310ff4763082116fe217f279885c97f511bb0b7"
 dependencies = [
- "byteorder",
  "lazy_static",
  "libm",
  "num-integer",
@@ -4017,7 +4016,7 @@ dependencies = [
 
 [[package]]
 name = "oauth2-types"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "assert_matches",
  "base64ct",
@@ -4132,6 +4131,27 @@ dependencies = [
  "http",
  "opentelemetry",
  "reqwest",
+]
+
+[[package]]
+name = "opentelemetry-instrumentation-process"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a81f1738bbdcf58eae20bd85ab0973f9c1f700ba37789e3253dc4e7ba61855c"
+dependencies = [
+ "opentelemetry",
+ "opentelemetry-semantic-conventions",
+ "procfs",
+]
+
+[[package]]
+name = "opentelemetry-instrumentation-tokio"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4fbe5cbcb32e33e68fd7a3a60d47c3b0a00cd40a4d012cec2f862f463dc0c296"
+dependencies = [
+ "opentelemetry",
+ "tokio",
 ]
 
 [[package]]
@@ -4651,6 +4671,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "procfs"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25485360a54d6861439d60facef26de713b1e126bf015ec8f98239467a2b82f7"
+dependencies = [
+ "bitflags",
+ "procfs-core",
+ "rustix",
+]
+
+[[package]]
+name = "procfs-core"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6401bf7b6af22f78b563665d15a22e9aef27775b79b149a66ca022468a4e405"
+dependencies = [
+ "bitflags",
+ "hex",
+]
+
+[[package]]
 name = "prost"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4992,9 +5033,9 @@ dependencies = [
 
 [[package]]
 name = "rsa"
-version = "0.9.8"
+version = "0.9.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78928ac1ed176a5ca1d17e578a1825f3d81ca54cf41053a592584b020cfd691b"
+checksum = "b8573f03f5883dcaebdfcf4725caa1ecb9c15b2ef50c43a07b816e06799bb12d"
 dependencies = [
  "const-oid",
  "digest",
@@ -5133,15 +5174,6 @@ dependencies = [
  "rustls-pki-types",
  "schannel",
  "security-framework",
-]
-
-[[package]]
-name = "rustls-pemfile"
-version = "2.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dce314e5fee3f39953d46bb63bb8a46d40c2f8fb7cc5a3b6cab2bde9721d6e50"
-dependencies = [
- "rustls-pki-types",
 ]
 
 [[package]]
@@ -6088,7 +6120,7 @@ dependencies = [
 
 [[package]]
 name = "syn2mas"
-version = "1.8.0"
+version = "1.9.0"
 dependencies = [
  "anyhow",
  "arc-swap",
