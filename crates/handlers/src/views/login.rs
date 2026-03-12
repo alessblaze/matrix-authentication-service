@@ -10,7 +10,7 @@
 use std::sync::{Arc, LazyLock};
 
 use axum::{
-    extract::{Form, State},
+    extract::{Form, FromRef, State},
     response::{Html, IntoResponse, Response},
 };
 use axum_extra::{extract::Query, typed_header::TypedHeader};
@@ -20,7 +20,7 @@ use mas_axum_utils::{
     cookies::CookieJar,
     csrf::{CsrfExt, ProtectedForm},
 };
-use mas_data_model::{BoxClock, BoxRng, Clock, oauth2::LoginHint};
+use mas_data_model::{BoxClock, BoxRng, Clock};
 use ulid::Ulid;
 use chrono::Duration;
 use mas_i18n::DataLocale;
@@ -34,7 +34,7 @@ use mas_storage::{
 };
 use mas_templates::{
     AccountInactiveContext, FieldError, FormError, FormState, LoginContext, LoginFormField,
-    PostAuthContext, PostAuthContextInner, TemplateContext, Templates, ToFormState,
+    TemplateContext, Templates, ToFormState,
 };
 use opentelemetry::{Key, KeyValue, metrics::Counter};
 use rand::Rng;
@@ -42,7 +42,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Sha256, Digest};
 use zeroize::Zeroizing;
 
-use super::shared::OptionalPostAuthAction;
+use super::shared::{LoginHint, OptionalPostAuthAction, QueryLoginHint};
 use crate::{
     BoundActivityTracker, Limiter, METER, PreferredLanguage, RequesterFingerprint, SiteConfig,
     captcha::Form as CaptchaForm,
@@ -85,6 +85,40 @@ struct LoginOtpContext {
     fingerprint_hash: String,
 }
 
+#[derive(Clone)]
+pub(crate) struct LoginPostState {
+    password_manager: PasswordManager,
+    site_config: SiteConfig,
+    templates: Templates,
+    url_builder: UrlBuilder,
+    limiter: Limiter,
+    homeserver: Arc<dyn HomeserverConnection>,
+    http_client: reqwest::Client,
+}
+
+impl<S> FromRef<S> for LoginPostState
+where
+    PasswordManager: FromRef<S>,
+    SiteConfig: FromRef<S>,
+    Templates: FromRef<S>,
+    UrlBuilder: FromRef<S>,
+    Limiter: FromRef<S>,
+    Arc<dyn HomeserverConnection>: FromRef<S>,
+    reqwest::Client: FromRef<S>,
+{
+    fn from_ref(input: &S) -> Self {
+        Self {
+            password_manager: PasswordManager::from_ref(input),
+            site_config: SiteConfig::from_ref(input),
+            templates: Templates::from_ref(input),
+            url_builder: UrlBuilder::from_ref(input),
+            limiter: Limiter::from_ref(input),
+            homeserver: Arc::<dyn HomeserverConnection>::from_ref(input),
+            http_client: reqwest::Client::from_ref(input),
+        }
+    }
+}
+
 impl ToFormState for LoginForm {
     type Field = LoginFormField;
 }
@@ -101,6 +135,7 @@ pub(crate) async fn get(
     mut repo: BoxRepository,
     activity_tracker: BoundActivityTracker,
     Query(query): Query<OptionalPostAuthAction>,
+    Query(query_login_hint): Query<QueryLoginHint>,
     cookie_jar: CookieJar,
 ) -> Result<Response, InternalError> {
     let (cookie_jar, maybe_session) = match load_session_or_fallback(
@@ -152,6 +187,7 @@ pub(crate) async fn get(
         &templates,
         &homeserver,
         &site_config,
+        query_login_hint,
     )
     .await
 }
@@ -161,20 +197,26 @@ pub(crate) async fn post(
     mut rng: BoxRng,
     clock: BoxClock,
     PreferredLanguage(locale): PreferredLanguage,
-    State(password_manager): State<PasswordManager>,
-    State(site_config): State<SiteConfig>,
-    State(templates): State<Templates>,
-    State(url_builder): State<UrlBuilder>,
-    State(limiter): State<Limiter>,
-    State(homeserver): State<Arc<dyn HomeserverConnection>>,
-    State(http_client): State<reqwest::Client>,
+    State(state): State<LoginPostState>,
     mut repo: BoxRepository,
-    (activity_tracker, requester): (BoundActivityTracker, RequesterFingerprint),
+    activity_tracker: BoundActivityTracker,
+    requester: RequesterFingerprint,
     Query(query): Query<OptionalPostAuthAction>,
+    Query(query_login_hint): Query<QueryLoginHint>,
     cookie_jar: CookieJar,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
     Form(form): Form<ProtectedForm<LoginForm>>,
 ) -> Result<Response, InternalError> {
+    let LoginPostState {
+        password_manager,
+        site_config,
+        templates,
+        url_builder,
+        limiter,
+        homeserver,
+        http_client,
+    } = state;
+
     let user_agent = user_agent.map(|ua| ua.as_str().to_owned());
     if !site_config.password_login_enabled {
         // XXX: is it necessary to have better errors here?
@@ -224,6 +266,7 @@ pub(crate) async fn post(
             &templates,
             &homeserver,
             &site_config,
+            query_login_hint,
         )
         .await;
     }
@@ -250,6 +293,7 @@ pub(crate) async fn post(
             &templates,
             &homeserver,
             &site_config,
+            query_login_hint,
         )
         .await;
     };
@@ -270,6 +314,7 @@ pub(crate) async fn post(
             &templates,
             &homeserver,
             &site_config,
+            query_login_hint,
         )
         .await;
     }
@@ -292,6 +337,7 @@ pub(crate) async fn post(
             &templates,
             &homeserver,
             &site_config,
+            query_login_hint,
         )
         .await;
     };
@@ -337,6 +383,7 @@ pub(crate) async fn post(
                 &templates,
                 &homeserver,
                 &site_config,
+                query_login_hint,
             )
             .await;
         }
@@ -390,6 +437,7 @@ pub(crate) async fn post(
                 &templates,
                 &homeserver,
                 &site_config,
+                query_login_hint,
             )
             .await;
         };
@@ -413,6 +461,7 @@ pub(crate) async fn post(
                     &templates,
                     &homeserver,
                     &site_config,
+                    query_login_hint,
                 )
                 .await;
             }
@@ -496,6 +545,7 @@ pub(crate) async fn post(
                     &templates,
                     &homeserver,
                     &site_config,
+                    query_login_hint,
                 )
                 .await;
             }
@@ -628,7 +678,7 @@ async fn get_user_by_email_or_by_username<R: RepositoryAccess>(
 
 fn handle_login_hint(
     mut ctx: LoginContext,
-    next: &PostAuthContext,
+    query_login_hint: &QueryLoginHint,
     homeserver: &dyn HomeserverConnection,
     site_config: &SiteConfig,
 ) -> LoginContext {
@@ -639,16 +689,12 @@ fn handle_login_hint(
         return ctx;
     }
 
-    if let PostAuthContextInner::ContinueAuthorizationGrant { ref grant } = next.ctx {
-        let value = match grant.parse_login_hint(homeserver.homeserver()) {
-            LoginHint::MXID(mxid) => Some(mxid.localpart().to_owned()),
-            LoginHint::Email(email) if site_config.login_with_email_allowed => {
-                Some(email.to_string())
-            }
-            _ => None,
-        };
-        form_state.set_value(LoginFormField::Username, value);
-    }
+    let value = match query_login_hint.parse_login_hint(homeserver.homeserver()) {
+        LoginHint::Mxid(mxid) => Some(mxid.localpart().to_owned()),
+        LoginHint::Email(email) if site_config.login_with_email_allowed => Some(email.to_string()),
+        _ => None,
+    };
+    form_state.set_value(LoginFormField::Username, value);
 
     ctx
 }
@@ -664,6 +710,7 @@ async fn render(
     templates: &Templates,
     homeserver: &dyn HomeserverConnection,
     site_config: &SiteConfig,
+    query_login_hint: QueryLoginHint,
 ) -> Result<Response, InternalError> {
     let (csrf_token, cookie_jar) = cookie_jar.csrf_token(clock, rng);
     let providers = repo.upstream_oauth_provider().all_enabled().await?;
@@ -672,12 +719,13 @@ async fn render(
         .with_form_state(form_state)
         .with_upstream_providers(providers);
 
+    let ctx = handle_login_hint(ctx, &query_login_hint, homeserver, site_config);
+
     let next = action
         .load_context(repo)
         .await
         .map_err(InternalError::from_anyhow)?;
     let ctx = if let Some(next) = next {
-        let ctx = handle_login_hint(ctx, &next, homeserver, site_config);
         ctx.with_post_action(next)
     } else {
         ctx
