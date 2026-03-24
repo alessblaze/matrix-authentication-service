@@ -349,7 +349,7 @@ pub(crate) async fn get(
         .into_iter()
         .map(|email| email.email)
         .collect();
-    let mut request = ProvisionRequest::new(user.username.clone(), user.sub.clone())
+    let mut request = ProvisionRequest::new(user.username.clone(), user.sub.clone(), false)
         .set_emails(emails);
     
     if let Some(display_name) = registration.display_name {
