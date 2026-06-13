@@ -49,7 +49,7 @@ pub struct SessionLimitConfig {
 }
 
 /// Random site configuration we want accessible in various places.
-#[allow(clippy::struct_excessive_bools)]
+#[expect(clippy::struct_excessive_bools)]
 #[derive(Debug, Clone)]
 pub struct SiteConfig {
     /// Time-to-live of access tokens.
@@ -80,6 +80,11 @@ pub struct SiteConfig {
     pub password_registration_email_required: bool,
 
     /// Whether registration tokens are required for password registrations.
+    pub password_registration_token_required: bool,
+
+    /// Whether registration tokens are required globally for password
+    /// registrations. Deprecated in favor of
+    /// `password_registration_token_required`
     pub registration_token_required: bool,
 
     /// Whether users can change their email.
@@ -120,4 +125,9 @@ pub struct SiteConfig {
 
     /// Whether the Device Authorization Grant (RFC 8628) is enabled.
     pub device_code_grant_enabled: bool,
+
+    /// Whether the device authorization endpoint advertises a
+    /// `verification_uri_complete` and whether `/link` accepts a `code`
+    /// query parameter to auto-fill the user code.
+    pub device_code_user_code_auto_fill_enabled: bool,
 }

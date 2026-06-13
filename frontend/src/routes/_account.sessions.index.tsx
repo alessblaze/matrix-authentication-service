@@ -5,7 +5,7 @@
 // Please see LICENSE files in the repository root for full details.
 
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import IconInfo from "@vector-im/compound-design-tokens/assets/web/icons/info";
 import { Alert, H3, H4, Tooltip } from "@vector-im/compound-web";
 import { useTranslation } from "react-i18next";
@@ -122,7 +122,7 @@ const searchSchema = v.intersect([
   anyPaginationSchema,
 ]);
 
-export const Route = createFileRoute({
+export const Route = createFileRoute("/_account/sessions/")({
   validateSearch: searchSchema,
 
   loaderDeps: ({ search: { inactive, ...pagination } }) => ({
@@ -343,7 +343,7 @@ function Sessions(): React.ReactElement {
         <div className="flex *:flex-1">
           <ButtonLink
             kind="secondary"
-            size="sm"
+            size="md"
             disabled={!forwardPage}
             to="/sessions"
             search={{ inactive, ...(forwardPage || pagination) }}
@@ -357,7 +357,7 @@ function Sessions(): React.ReactElement {
 
           <ButtonLink
             kind="secondary"
-            size="sm"
+            size="md"
             disabled={!backwardPage}
             to="/sessions"
             search={{ inactive, ...(backwardPage || pagination) }}

@@ -60,17 +60,17 @@ Please see LICENSE files in the repository root for full details.
 
       <input type="hidden" name="csrf" value="{{ csrf_token }}" />
 
-      {% if features.login_with_email_allowed %}
-        {% call(f) field.field(label=_("mas.login.username_or_email"), name="username", form_state=form) %}
-          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" {% if features.email_otp_required and form.fields.username and form.fields.username.value %}readonly style="opacity: 0.7;"{% else %}required{% endif %} />
-        {% endcall %}
-      {% else %}
-        {% call(f) field.field(label=_("common.username"), name="username", form_state=form) %}
-          <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" {% if features.email_otp_required and form.fields.username and form.fields.username.value %}readonly style="opacity: 0.7;"{% else %}required{% endif %} />
-        {% endcall %}
-      {% endif %}
-
       {% if features.password_login %}
+        {% if features.login_with_email_allowed %}
+          {% call(f) field.field(label=_("mas.login.username_or_email"), name="username", form_state=form) %}
+            <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" {% if features.email_otp_required and form.fields.username and form.fields.username.value %}readonly style="opacity: 0.7;"{% else %}required{% endif %} />
+          {% endcall %}
+        {% else %}
+          {% call(f) field.field(label=_("common.username"), name="username", form_state=form) %}
+            <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="text" autocomplete="username" autocorrect="off" autocapitalize="off" {% if features.email_otp_required and form.fields.username and form.fields.username.value %}readonly style="opacity: 0.7;"{% else %}required{% endif %} />
+          {% endcall %}
+        {% endif %}
+
         {% call(f) field.field(label=_("common.password"), name="password", form_state=form) %}
           <input {{ field.attributes(f) }} class="cpd-text-control bg-white/10 border-white/20 text-white placeholder-violet-300/60 focus:ring-violet-400" type="password" autocomplete="password" required />
         {% endcall %}

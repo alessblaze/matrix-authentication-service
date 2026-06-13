@@ -5,32 +5,67 @@
  * Please see LICENSE files in the repository root for full details.
  */
 
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
-@import "@fontsource/inconsolata/400.css";
-@import "@fontsource/inconsolata/700.css";
-@import "@vector-im/compound-design-tokens/assets/web/css/compound-design-tokens.css";
-@import "@vector-im/compound-web/dist/style.css";
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* The SSR templates live outside the frontend root, so they aren't picked up by
+ * Tailwind's automatic content detection. */
+@source "../../../templates/**/*.html";
+
+:root {
+  --cpd-color-gray-400: rgba(255, 255, 255, 0.3) !important;
+  --cpd-color-text-primary: white !important;
+  --cpd-color-text-secondary: rgba(255, 255, 255, 0.8) !important;
+  --cpd-color-bg-action-primary-rest: rgb(139, 92, 246) !important;
+  --cpd-color-bg-subtle-secondary: rgba(255, 255, 255, 0.1) !important;
+  --cpd-color-bg-subtle-primary: rgba(255, 255, 255, 0.2) !important;
+  --cpd-color-border-focused: rgb(139, 92, 246) !important;
+}
+
+@theme {
+  --color-*: initial;
+  --font-weight-*: initial;
+
+  --color-white: #ffffff;
+  --color-primary: var(--cpd-color-text-primary);
+  --color-secondary: var(--cpd-color-text-secondary);
+  --color-critical: var(--cpd-color-text-critical-primary);
+  --color-alert: #ff5b55;
+  --color-links: #0086e6;
+  --color-grey-25: #f4f6fa;
+  --color-grey-50: #e3e8f0;
+  --color-grey-100: #c1c6cd;
+  --color-grey-150: #8d97a5;
+  --color-grey-200: #737d8c;
+  --color-grey-250: #a9b2bc;
+  --color-grey-300: #8e99a4;
+  --color-grey-400: #6f7882;
+  --color-grey-450: #394049;
+
+  --font-weight-semibold: var(--cpd-font-weight-semibold);
+  --font-weight-medium: var(--cpd-font-weight-medium);
+  --font-weight-regular: var(--cpd-font-weight-regular);
+}
 
 /* Violet gradient background - fixed for scrolling */
 html {
+  min-height: 100%;
   background: linear-gradient(135deg, rgb(76 29 149), rgb(88 28 135), rgb(67 56 202)) !important;
   background-attachment: fixed !important;
   min-height: 100vh;
 }
 
 body {
-  background: transparent;
+  margin: 0;
   min-height: 100vh;
+  min-height: 100svh;
+  background: linear-gradient(135deg, rgb(76 29 149), rgb(88 28 135), rgb(67 56 202)) !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
 }
 
-#root {
+#root,
+[class*="layout-container"] {
   min-height: 100vh;
   background: transparent;
 }
@@ -85,17 +120,6 @@ textarea:focus {
 .cpd-form-field-label,
 label {
   color: white !important;
-}
-
-/* Override CSS custom properties for navigation */
-:root {
-  --cpd-color-gray-400: rgba(255, 255, 255, 0.3) !important;
-  --cpd-color-text-secondary: rgba(255, 255, 255, 0.8) !important;
-  --cpd-color-text-primary: white !important;
-  --cpd-color-bg-action-primary-rest: rgb(139, 92, 246) !important;
-  --cpd-color-bg-subtle-secondary: rgba(255, 255, 255, 0.1) !important;
-  --cpd-color-bg-subtle-primary: rgba(255, 255, 255, 0.2) !important;
-  --cpd-color-border-focused: rgb(139, 92, 246) !important;
 }
 
 /* Icon styling */
