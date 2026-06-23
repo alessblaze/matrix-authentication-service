@@ -1,3 +1,4 @@
+// Copyright 2026 Element Creations Ltd.
 // Copyright 2024, 2025 New Vector Ltd.
 // Copyright 2021-2024 The Matrix.org Foundation C.I.C.
 //
@@ -68,6 +69,7 @@ mod activity_tracker;
 mod captcha;
 #[cfg(test)]
 mod cleanup_tests;
+mod client_ip;
 mod preferred_language;
 mod rate_limit;
 mod session;
@@ -105,8 +107,10 @@ use mas_data_model::{BoxClock, BoxRng};
 pub use self::{
     activity_tracker::{ActivityTracker, Bound as BoundActivityTracker},
     admin::router as admin_api_router,
+    client_ip::ClientIp,
     graphql::{
-        Schema as GraphQLSchema, schema as graphql_schema, schema_builder as graphql_schema_builder,
+        GraphQLOperation, Schema as GraphQLSchema, schema as graphql_schema,
+        schema_builder as graphql_schema_builder,
     },
     preferred_language::PreferredLanguage,
     rate_limit::{Limiter, RequesterFingerprint},
@@ -195,7 +199,7 @@ where
                     CONTENT_LANGUAGE,
                     CONTENT_TYPE,
                 ])
-                .max_age(Duration::from_secs(60 * 60)),
+                .max_age(Duration::from_hours(1)),
         )
 }
 
@@ -259,7 +263,7 @@ where
                     // Swagger will send this header, so we have to allow it to avoid CORS errors
                     HeaderName::from_static("x-requested-with"),
                 ])
-                .max_age(Duration::from_secs(60 * 60)),
+                .max_age(Duration::from_hours(1)),
         )
 }
 
@@ -329,7 +333,7 @@ where
                     CONTENT_TYPE,
                     HeaderName::from_static("x-requested-with"),
                 ])
-                .max_age(Duration::from_secs(60 * 60)),
+                .max_age(Duration::from_hours(1)),
         );
 
     Router::new().merge(human_router).merge(api_router)
